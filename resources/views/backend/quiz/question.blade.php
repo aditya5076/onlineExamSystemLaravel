@@ -71,9 +71,9 @@
         @endforeach
         <!--endforeach-->
 
-        <div class="module-foot">
+        <div class="module-foot float-right">
           <td>
-            <a href="{{route('quiz.index')}}"><button class="btn btn-inverse pull-center">Back</button></a>
+            <a href="{{route('quiz.index')}}"><button class="btn btn-inverse pull-center ">Back</button></a>
           </td>
         </div>
 

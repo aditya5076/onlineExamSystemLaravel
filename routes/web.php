@@ -1,5 +1,14 @@
 <?php
 
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Route;
+
+
+Auth::routes([
+	'register' => false,
+]);
+
+// For Guests
 /*
 |--------------------------------------------------------------------------
 | Web Routes
@@ -53,15 +62,6 @@
 
 // use Illuminate\Routing\Route;
 
-use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Route;
-
-
-Auth::routes([
-	'register' => false,
-]);
-
-// For Guests
 Route::get('/home', 'HomeController@index')->name('home');
 
 Route::group(['middleware' => 'auth'], function () {
