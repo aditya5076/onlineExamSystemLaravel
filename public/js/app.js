@@ -1946,42 +1946,38 @@ __webpack_require__.r(__webpack_exports__);
       userResponses: Array(this.quizQuestions.length).fill(false),
       currentQuestion: 0,
       currentAnswer: 0,
-      clock: moment(this.times * 60 * 1000)
+      clock: moment(10 * 1000 - 30 * 60 * 1000)
     };
   },
   mounted: function mounted() {
     var _this = this;
 
-    setInterval(function () {
-      _this.clock = moment(_this.clock.subtract(1, 'seconds'));
+    var timer = setInterval(function () {
+      if (_this.questionIndex < _this.questions.length) {
+        _this.clock = moment(_this.clock.subtract(1, 'seconds'));
+      }
     }, 1000);
+    setInterval(function () {
+      if (_this.questionIndex < _this.questions.length) {
+        _this.next();
+      }
+    }, 10000);
   },
   computed: {
     time: function time() {
       var minsec = this.clock.format('mm:ss');
-
-      if (minsec == '00:00') {
-        alert('timeout');
-        window.location.reload();
-      }
-
       return minsec;
     }
   },
   methods: {
     next: function next() {
-      this.questionIndex++;
+      this.questionIndex++, this.clock = moment(10 * 1000 - 30 * 60 * 1000);
     },
     prev: function prev() {
       this.questionIndex--;
     },
     choices: function choices(question, answer) {
       this.currentAnswer = answer, this.currentQuestion = question;
-    },
-    score: function score() {
-      return this.userResponses.filter(function (val) {
-        return val === true;
-      }).length;
     },
     postuserChoice: function postuserChoice() {
       axios.post('/quiz/create', {
@@ -1993,6 +1989,16 @@ __webpack_require__.r(__webpack_exports__);
       })["catch"](function (error) {
         alert("Error!");
       });
+    },
+    score: function score() {
+      return this.userResponses.filter(function (val) {
+        return val === true;
+      }).length;
+    },
+    submission: function submission() {
+      if (this.questionIndex === this.questions.length) {
+        this.postuserChoice();
+      }
     }
   }
 }); // // to disable back-button and also to prevent for refresh
@@ -59023,7 +59029,7 @@ var render = function() {
       _c("div", { staticClass: "col-md-8" }, [
         _c("div", { staticClass: "card" }, [
           _c("div", { staticClass: "card-header" }, [
-            _vm._v("Online ExaminAtion\n                    "),
+            _vm._v("Online Examination\n                    "),
             _c("span", { staticClass: "float-right" }, [
               _vm._v(
                 _vm._s(_vm.questionIndex) + "/" + _vm._s(_vm.questions.length)
@@ -59037,7 +59043,18 @@ var render = function() {
             [
               _c(
                 "span",
-                { staticClass: "float-right", staticStyle: { color: "red" } },
+                {
+                  directives: [
+                    {
+                      name: "show",
+                      rawName: "v-show",
+                      value: _vm.questionIndex != _vm.questions.length,
+                      expression: "questionIndex!=questions.length"
+                    }
+                  ],
+                  staticClass: "float-right",
+                  staticStyle: { color: "red" }
+                },
                 [_vm._v(_vm._s(_vm.time))]
               ),
               _vm._v(" "),
@@ -59157,7 +59174,11 @@ var render = function() {
                   )
                 ]
               ),
-              _vm._v(" "),
+              _vm._v(
+                "\n                " +
+                  _vm._s(_vm.submission()) +
+                  "\n                "
+              ),
               _c(
                 "div",
                 {
@@ -59180,7 +59201,7 @@ var render = function() {
                             _vm._s(_vm.score()) +
                             "/" +
                             _vm._s(_vm.questions.length) +
-                            "\n\n                        "
+                            "\n                        "
                         )
                       ])
                     ],

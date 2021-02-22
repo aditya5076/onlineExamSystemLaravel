@@ -4,12 +4,12 @@
             <div class="col-md-8">
                 <div class="card">
 
-                    <div class="card-header">Online ExaminAtion
+                    <div class="card-header">Online Examination
                         <span class="float-right">{{questionIndex}}/{{questions.length}}</span>
                     </div>
 
                     <div class="card-body">
-                       <span class="float-right" style="color:red;">{{time}}</span>
+                       <span class="float-right" style="color:red;" v-show="questionIndex!=questions.length">{{time}}</span>
 
 
                         <div v-for="(question,index) in questions">
@@ -46,11 +46,11 @@
                         <button class="btn btn-success float-right"@click="next();postuserChoice()">Next</button>
 
                     </div>
+                    {{submission()}}
                     <div v-show="questionIndex===questions.length">
                         <p>
                             <center>
                                 You got:{{score()}}/{{questions.length}}
-
                             </center>
                         </p>
 
@@ -76,34 +76,35 @@
                 userResponses:Array(this.quizQuestions.length).fill(false),
                 currentQuestion:0,
                 currentAnswer:0,
-                clock: moment(this.times * 60 * 1000),
-
-
-
+                clock: moment((10 * 1000)-(30*60*1000)),
             }
         },
+
 
         mounted() {
-            setInterval(() => {
-            this.clock = moment(this.clock.subtract(1, 'seconds'))
+            var timer=setInterval(() => {
+                if(this.questionIndex<this.questions.length){
+                    this.clock = moment(this.clock.subtract(1, 'seconds'))
+            }
             }, 1000);
 
-
-
+            setInterval(()=>{
+                if(this.questionIndex<this.questions.length){
+                    this.next();
+                }
+            },10000)
         },
+
             computed: {
             time: function(){
-            var minsec=this.clock.format('mm:ss');
-            if(minsec=='00:00'){
-                alert('timeout')
-                window.location.reload();
-            }
+                var minsec=this.clock.format('mm:ss');
                 return minsec
             }
         },
         methods:{
             next(){
-                this.questionIndex++
+                this.questionIndex++,
+                this.clock=moment((10 * 1000)-(30*60*1000))
             },
             prev(){
                 this.questionIndex--
@@ -112,11 +113,7 @@
                 this.currentAnswer=answer,
                 this.currentQuestion=question
             },
-            score(){
-                return this.userResponses.filter((val)=>{
-                    return val===true;
-                }).length
-            },
+
             postuserChoice(){
                 axios.post('/quiz/create',{
                     answerId:this.currentAnswer,
@@ -128,6 +125,17 @@
                 }).catch((error)=>{
                     alert("Error!")
                 });
+            },
+             score(){
+                return this.userResponses.filter((val)=>{
+                    return val===true;
+                }).length
+
+            },
+            submission(){
+                if(this.questionIndex===this.questions.length){
+                    this.postuserChoice();
+                }
             }
 
         }
